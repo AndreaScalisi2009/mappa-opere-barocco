@@ -128,6 +128,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
   <script>
+    // URL Corretto del tuo repository GitHub Pages
     const baseUrl = "https://andreascalisi2009.github.io/mappa-opere-barocco/";
 
     // Dati delle opere con estensione dinamica del video
@@ -304,10 +305,15 @@
           </div>
 
           <div class="relative aspect-video w-full rounded-xl overflow-hidden bg-black border border-stone-300 shadow-inner">
-            <video class="w-full h-full object-cover" controls preload="metadata">
-              <source src="${videoFullUrl}" type="video/${item.extension}">
-              Il tuo browser non supporta il video.
+            <video class="w-full h-full object-cover" controls playsinline preload="metadata">
+              <source src="${videoFullUrl}" type="video/mp4">
+              Il browser non supporta il riproduttore.
             </video>
+          </div>
+          <div class="mt-2 text-right">
+            <a href="${videoFullUrl}" target="_blank" class="text-[10px] text-orange-600 hover:underline font-semibold">
+              <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Apri video in una nuova scheda
+            </a>
           </div>
         </div>
       `;
