@@ -9,118 +9,107 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts & FontAwesome -->
+  <!-- Google Fonts (Inter - Stile pulito e tecnico) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .font-serif-title { font-family: 'Playfair Display', serif; }
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
     #map { height: 100vh; width: 100%; z-index: 1; }
 
-    /* Fix e Stile del Popup */
+    /* Stile Minimal per il Popup Leaflet */
     .leaflet-popup-content-wrapper {
-      background: #fafaf9 !important;
-      color: #1c1917 !important;
-      border-radius: 20px !important;
+      background: #ffffff !important;
+      color: #334155 !important;
+      border-radius: 8px !important;
       padding: 0 !important;
-      border: 1px solid #e7e5e4;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+      border: 1px solid #e2e8f0;
       overflow: hidden;
     }
     .leaflet-popup-content {
       margin: 0 !important;
-      width: 330px !important;
+      width: 320px !important;
     }
-    @media (min-width: 640px) {
-      .leaflet-popup-content { width: 380px !important; }
-    }
-    .leaflet-popup-tip { background: #fafaf9 !important; }
+    @media (min-width: 640px) { .leaflet-popup-content { width: 360px !important; } }
+    .leaflet-popup-tip { background: #ffffff !important; border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; }
 
-    /* Fix del pulsante X di chiusura */
+    /* Pulsante chiusura X */
     .leaflet-container a.leaflet-popup-close-button {
-      color: #78716c !important;
-      top: 14px !important;
-      right: 14px !important;
-      width: 28px !important;
-      height: 28px !important;
+      color: #94a3b8 !important;
+      top: 12px !important;
+      right: 12px !important;
+      font-size: 18px !important;
+      width: 24px !important;
+      height: 24px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      border-radius: 9999px !important;
-      background-color: #f5f5f4 !important;
-      border: 1px solid #e7e5e4 !important;
-      font-size: 16px !important;
-      font-weight: bold !important;
-      transition: all 0.2s ease !important;
-      z-index: 20 !important;
+      background: #f1f5f9 !important;
+      border-radius: 4px !important;
+      transition: all 0.2s !important;
     }
-    .leaflet-container a.leaflet-popup-close-button:hover {
-      color: #c2410c !important;
-      background-color: #ffedd5 !important;
-    }
+    .leaflet-container a.leaflet-popup-close-button:hover { background: #e2e8f0 !important; color: #0f172a !important; }
 
-    /* Pin Personalizzato per la Mappa */
-    .custom-map-pin {
-      background-color: #c2410c;
+    /* Pin Mappa Minimalista */
+    .minimal-pin {
+      background-color: #0f172a;
       color: #ffffff;
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
+      font-weight: 600;
+      font-size: 12px;
       border: 2px solid #ffffff;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-      transition: transform 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transition: background-color 0.2s, transform 0.2s;
     }
-    .custom-map-pin:hover {
-      transform: scale(1.15);
-      background-color: #ea580c;
-    }
+    .minimal-pin:hover { background-color: #2563eb; transform: scale(1.1); }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #f5f5f4; }
-    ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #c2410c; }
+    /* Scrollbar sottile */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="bg-stone-100 text-stone-800 flex flex-col md:flex-row h-screen overflow-hidden">
+<body class="text-slate-800 flex flex-col md:flex-row h-screen overflow-hidden">
 
   <!-- Sidebar -->
-  <aside class="w-full md:w-[420px] bg-stone-50 border-r border-stone-200 flex flex-col h-2/5 md:h-full z-10 shadow-lg relative">
+  <aside class="w-full md:w-[380px] bg-white border-r border-slate-200 flex flex-col h-2/5 md:h-full z-10 shadow-lg">
     
     <!-- Header -->
-    <header class="p-6 border-b border-stone-200 bg-gradient-to-b from-orange-50/50 to-stone-50">
-      <div class="flex items-center gap-3.5">
-        <div class="p-3 bg-orange-600 text-white rounded-2xl shadow-md shadow-orange-600/20">
-          <i class="fa-solid fa-palette text-xl"></i>
+    <header class="p-5 border-b border-slate-200 bg-slate-50">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-slate-800 text-white rounded-lg">
+          <i class="fa-solid fa-map-location-dot text-lg"></i>
         </div>
         <div>
-          <h1 class="text-xl font-bold font-serif-title tracking-tight text-stone-900">Roma Barocca</h1>
-          <p class="text-xs text-stone-500 font-medium">Itinerario d'Arte della Classe</p>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">Progetto Arte</h1>
+          <p class="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Roma Barocca</p>
         </div>
       </div>
     </header>
 
     <!-- Lista Opere -->
-    <div id="art-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+    <div id="art-list" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/50">
       <!-- Generato dinamicamente -->
     </div>
 
     <!-- Footer Sidebar -->
-    <footer class="p-3.5 border-t border-stone-200 bg-stone-100 text-center text-xs text-stone-500">
-      <i class="fa-solid fa-compass text-orange-600 mr-1"></i> Seleziona un'opera per posizionarti sulla mappa
+    <footer class="p-3 border-t border-slate-200 bg-white text-center text-xs text-slate-400">
+      <i class="fa-solid fa-circle-info mr-1"></i> Clicca su un elemento per esplorare
     </footer>
   </aside>
 
   <!-- Mappa -->
-  <main class="flex-1 relative h-3/5 md:h-full">
+  <main class="flex-1 relative h-3/5 md:h-full bg-slate-100">
     <div id="map"></div>
   </main>
 
@@ -128,205 +117,99 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
   <script>
-    // URL Corretto del tuo repository GitHub Pages
     const baseUrl = "https://andreascalisi2009.github.io/mappa-opere-barocco/";
 
-    // Dati delle opere con estensione dinamica del video
     const artworksData = [
-      {
-        id: 1,
-        title: "San Pancrazio",
-        slug: "san-pancrazio",
-        extension: "mp4",
-        location: "Basilica di San Pancrazio",
-        group: "Gruppo 1",
-        students: "Marco, Sofia, Luca",
-        coords: [41.8858, 12.4593],
-        description: "Basilica paleocristiana situata sul colle Gianicolo, ricca di storia e fascino spirituale."
-      },
-      {
-        id: 2,
-        title: "San Matteo",
-        slug: "san-matteo",
-        extension: "mp4",
-        location: "Chiesa di San Luigi dei Francesi",
-        group: "Gruppo 2",
-        students: "Elena, Matteo, Giulia",
-        coords: [41.8996, 12.4746],
-        description: "Il celebre ciclo pittorico di Caravaggio dedicato alle storie di San Matteo nella Cappella Contarelli."
-      },
-      {
-        id: 3,
-        title: "Gloria di Sant'Ignazio e Finta Cupola",
-        slug: "gloria-di-sant-ignazio-e-finta-cupola",
-        extension: "mp4",
-        location: "Chiesa di Sant'Ignazio di Loyola",
-        group: "Gruppo 3",
-        students: "Andrea, Francesca, Tommaso",
-        coords: [41.8992, 12.4798],
-        description: "Spettacolare illusione prospettica e affresco a trompe-l'œil capolavoro di Andrea Pozzo."
-      },
-      {
-        id: 4,
-        title: "Giuditta che decapita Oloferne",
-        slug: "giuditta-che-decapita-oloferne",
-        extension: "mp4",
-        location: "Palazzo Barberini",
-        group: "Gruppo 4",
-        students: "Lorenzo, Chiara, Davide",
-        coords: [41.9034, 12.4903],
-        description: "Uno dei dipinti più drammatici e intensi realizzati da Caravaggio, conservato a Palazzo Barberini."
-      },
-      {
-        id: 5,
-        title: "Colonnato di San Pietro",
-        slug: "colonnato-di-san-pietro",
-        extension: "MP4",
-        location: "Piazza San Pietro",
-        group: "Gruppo 5",
-        students: "Sara, Alessandro, Beatrice",
-        coords: [41.9022, 12.4568],
-        description: "L'abbraccio monumentale progettato da Gian Lorenzo Bernini per accogliere i fedeli in Vaticano."
-      },
-      {
-        id: 6,
-        title: "Baldacchino di San Pietro e Cattedra di San Pietro",
-        slug: "baldacchino-di-san-pietro-e-cattedra-di-san-pietro",
-        extension: "mp4",
-        location: "Basilica di San Pietro",
-        group: "Gruppo 6",
-        students: "Gabriele, Martina, Filippo",
-        coords: [41.9021, 12.4539],
-        description: "Imponenti strutture bronzee e scenografiche realizzate dal Bernini all'interno della Basilica."
-      },
-      {
-        id: 7,
-        title: "Trionfo della Divina Provvidenza",
-        slug: "trionfo-della-divina-provvidenza",
-        extension: "mp4",
-        location: "Palazzo Barberini",
-        group: "Gruppo 7",
-        students: "Edoardo, Alice, Giovanni",
-        coords: [41.9032, 12.4901],
-        description: "Il maestoso affresco del soffitto del Salone Grande eseguito da Pietro da Cortona."
-      },
-      {
-        id: 8,
-        title: "Estasi di Santa Teresa",
-        slug: "estasi-di-santa-teresa",
-        extension: "mp4",
-        location: "Chiesa di Santa Maria della Vittoria",
-        group: "Gruppo 8",
-        students: "Federico, Camilla, Riccardo",
-        coords: [41.9047, 12.4942],
-        description: "Il capolavoro marmoreo della scultura barocca curato nei dettagli da Gian Lorenzo Bernini."
-      },
-      {
-        id: 9,
-        title: "San Carlo alle Quattro Fontane",
-        slug: "san-carlo-alle-quattro-fontane",
-        extension: "mp4",
-        location: "Chiesa di San Carlo alle Quattro Fontane",
-        group: "Gruppo 9",
-        students: "Giorgia, Leonardo, Elisa",
-        coords: [41.9018, 12.4907],
-        description: "Geniale chiesa barocca dalle linee concave e convesse progettata da Francesco Borromini."
-      }
+      { id: 1, title: "San Pancrazio", slug: "san-pancrazio", extension: "mp4", location: "Basilica di San Pancrazio", group: "Gruppo 1", students: "Marco, Sofia, Luca", coords: [41.8858, 12.4593], description: "Basilica paleocristiana sul colle Gianicolo." },
+      { id: 2, title: "San Matteo", slug: "san-matteo", extension: "mp4", location: "San Luigi dei Francesi", group: "Gruppo 2", students: "Elena, Matteo, Giulia", coords: [41.8996, 12.4746], description: "Ciclo pittorico di Caravaggio nella Cappella Contarelli." },
+      { id: 3, title: "Gloria di Sant'Ignazio", slug: "gloria-di-sant-ignazio-e-finta-cupola", extension: "mp4", location: "Chiesa di Sant'Ignazio", group: "Gruppo 3", students: "Andrea, Francesca, Tommaso", coords: [41.8992, 12.4798], description: "Illusione prospettica e affresco a trompe-l'œil di Andrea Pozzo." },
+      { id: 4, title: "Giuditta e Oloferne", slug: "giuditta-che-decapita-oloferne", extension: "mp4", location: "Palazzo Barberini", group: "Gruppo 4", students: "Lorenzo, Chiara, Davide", coords: [41.9034, 12.4903], description: "Dipinto drammatico di Caravaggio." },
+      { id: 5, title: "Colonnato di San Pietro", slug: "colonnato-di-san-pietro", extension: "mp4", location: "Piazza San Pietro", group: "Gruppo 5", students: "Sara, Alessandro, Beatrice", coords: [41.9022, 12.4568], description: "Progetto monumentale di Gian Lorenzo Bernini." },
+      { id: 6, title: "Baldacchino di San Pietro", slug: "baldacchino-di-san-pietro-e-cattedra-di-san-pietro", extension: "mp4", location: "Basilica di San Pietro", group: "Gruppo 6", students: "Gabriele, Martina, Filippo", coords: [41.9021, 12.4539], description: "Monumentale scultura bronzea del Bernini." },
+      { id: 7, title: "Trionfo della Provvidenza", slug: "trionfo-della-divina-provvidenza", extension: "mp4", location: "Palazzo Barberini", group: "Gruppo 7", students: "Edoardo, Alice, Giovanni", coords: [41.9032, 12.4901], description: "Affresco del soffitto eseguito da Pietro da Cortona." },
+      { id: 8, title: "Estasi di Santa Teresa", slug: "estasi-di-santa-teresa", extension: "mp4", location: "Santa Maria della Vittoria", group: "Gruppo 8", students: "Federico, Camilla, Riccardo", coords: [41.9047, 12.4942], description: "Scultura in marmo di Gian Lorenzo Bernini." },
+      { id: 9, title: "San Carlo alle 4 Fontane", slug: "san-carlo-alle-quattro-fontane", extension: "mp4", location: "Chiesa di San Carlino", group: "Gruppo 9", students: "Giorgia, Leonardo, Elisa", coords: [41.9018, 12.4907], description: "Progetto architettonico di Francesco Borromini." }
     ];
 
-    // Inizializzazione della mappa
-    const map = L.map('map', { zoomControl: false }).setView([41.898, 12.478], 14);
-
-    // Zoom Control in alto a destra
+    const map = L.map('map', { zoomControl: false }).setView([41.901, 12.478], 14);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // Tile Layer OpenStreetMap
-    L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+    // Mappa Base Minimal (Toni chiari e grigi - CartoDB Positron)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
     }).addTo(map);
 
     const markers = {};
     const artListEl = document.getElementById('art-list');
 
     artworksData.forEach(item => {
-      // Costruzione dell'URL del video con la variabile dell'estensione
       const videoFullUrl = `${baseUrl}${item.slug}.${item.extension}`;
 
-      // Card Sidebar
+      // Card Sidebar (Stile Minimal e Compatto)
       const card = document.createElement('div');
-      card.className = "group p-4 bg-white hover:bg-orange-50/40 border border-stone-200 hover:border-orange-300 rounded-2xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md";
+      card.className = "group p-3 bg-white border border-slate-200 hover:border-blue-400 rounded-md cursor-pointer transition-colors shadow-sm";
       card.innerHTML = `
-        <div class="flex justify-between items-start gap-2 mb-2">
-          <h3 class="font-bold text-stone-900 text-sm group-hover:text-orange-700 transition-colors font-serif-title">
+        <div class="flex justify-between items-start mb-1">
+          <h3 class="font-semibold text-slate-800 text-sm group-hover:text-blue-600 transition-colors">
             ${item.title}
           </h3>
-          <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2.5 py-0.5 rounded-full border border-orange-200 shrink-0">
+          <span class="text-[9px] font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">
             ${item.group}
           </span>
         </div>
-        <p class="text-xs text-stone-600 flex items-center gap-1.5 mb-2">
-          <i class="fa-solid fa-location-dot text-orange-600 text-xs"></i> ${item.location}
+        <p class="text-xs text-slate-500 truncate mb-1">
+          <i class="fa-solid fa-map-pin text-slate-400 w-3 text-center mr-1"></i>${item.location}
         </p>
-        <p class="text-[11px] text-stone-400 italic">
-          <i class="fa-solid fa-users text-stone-400 mr-1"></i>${item.students}
+        <p class="text-[10px] text-slate-400">
+          <i class="fa-solid fa-user text-slate-300 w-3 text-center mr-1"></i>${item.students}
         </p>
       `;
 
       card.addEventListener('click', () => {
-        map.flyTo(item.coords, 17, { duration: 1.2 });
+        map.flyTo(item.coords, 16, { duration: 1.2 });
         markers[item.id].openPopup();
       });
 
       artListEl.appendChild(card);
 
-      // Popup
+      // Popup Content (Stile Tecnico)
       const popupContent = `
-        <div class="p-5 bg-stone-50 text-stone-800">
-          <div class="flex justify-between items-start gap-2 mb-3 pb-2 border-b border-stone-200 pr-6">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-orange-700 bg-orange-100 px-2 py-0.5 rounded border border-orange-200">
-                ${item.group}
-              </span>
-              <h3 class="font-bold text-stone-900 text-base mt-2 leading-snug font-serif-title">${item.title}</h3>
-            </div>
+        <div class="p-4 bg-white">
+          <div class="mb-3">
+            <span class="text-[9px] font-bold uppercase tracking-wide text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 mb-1 inline-block">
+              ${item.group}
+            </span>
+            <h3 class="font-bold text-slate-900 text-[15px] leading-tight">${item.title}</h3>
+            <p class="text-[11px] text-slate-500 mt-1">${item.location}</p>
           </div>
 
-          <div class="space-y-1.5 mb-4 text-xs">
-            <p class="text-stone-700 font-medium flex items-center gap-1">
-              <i class="fa-solid fa-location-dot text-orange-600"></i> ${item.location}
-            </p>
-            <p class="text-stone-500">
-              <i class="fa-solid fa-user-group text-stone-400 mr-1"></i> Autori: <strong class="text-stone-700">${item.students}</strong>
-            </p>
-            <p class="text-stone-600 mt-2 leading-relaxed text-[11px] bg-white p-3 rounded-xl border border-stone-200 shadow-sm">
-              ${item.description}
-            </p>
+          <div class="mb-3 p-2 bg-slate-50 rounded border border-slate-100 text-[11px] text-slate-600 leading-relaxed">
+            ${item.description}
           </div>
 
-          <div class="relative aspect-video w-full rounded-xl overflow-hidden bg-black border border-stone-300 shadow-inner">
+          <div class="relative aspect-video w-full rounded bg-slate-900 overflow-hidden">
             <video class="w-full h-full object-cover" controls playsinline preload="metadata">
               <source src="${videoFullUrl}" type="video/mp4">
               Il browser non supporta il riproduttore.
             </video>
           </div>
           <div class="mt-2 text-right">
-            <a href="${videoFullUrl}" target="_blank" class="text-[10px] text-orange-600 hover:underline font-semibold">
-              <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Apri video in una nuova scheda
+            <a href="${videoFullUrl}" target="_blank" class="text-[10px] text-blue-600 hover:text-blue-800 font-medium">
+              Apri video in un'altra scheda &rarr;
             </a>
           </div>
         </div>
       `;
 
-      // Icona personalizzata con numero
+      // Icona Custom (Pallino Scuro pulito)
       const customIcon = L.divIcon({
         className: '',
-        html: `<div class="custom-map-pin">${item.id}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        html: `<div class="minimal-pin">${item.id}</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
       });
 
-      // Marker con icona personalizzata
       const marker = L.marker(item.coords, { icon: customIcon }).addTo(map);
       marker.bindPopup(popupContent);
       markers[item.id] = marker;
