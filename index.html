@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>v8.0 - Mappa Interattiva - Roma Barocca & Rococo</title>
+  <title>v9.0 - Mappa Interattiva - Roma Barocca & Rococo</title>
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -117,11 +117,11 @@
           <h1 class="text-3xl font-serif-custom text-[#2C2A29] tracking-tight mb-1">Roma Barocca</h1>
           <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8E3A3A]">Classe 4G • 10/2026</p>
         </div>
-        <span class="text-[10px] font-mono bg-[#E8E5E1] text-[#666] px-2 py-1 rounded">v8.0</span>
+        <span class="text-[10px] font-mono bg-[#E8E5E1] text-[#666] px-2 py-1 rounded">v9.0</span>
       </div>
     </header>
 
-    <!-- Lista Opere Divisa per Autore -->
+    <!-- Lista Opere Ordinata come da Elenco Ufficiale -->
     <div id="art-list" class="flex-1 overflow-y-auto px-6 py-4">
       <!-- Generato dinamicamente -->
     </div>
@@ -139,7 +139,7 @@
   <script>
     const baseUrl = "https://andreascalisi2009.github.io/mappa-opere-barocco/";
 
-    // Opere ordinate secondo il nuovo elenco e i gruppi corretti
+    // Opere riordinate esattamente secondo l'elenco ufficiale fornito
     const artworksData = [
       { 
         id: 1, 
@@ -151,7 +151,7 @@
         group: "Gruppo 1", 
         students: "Alessandro Pera, Enea Quintiliani", 
         coords: [41.8858, 12.4593], 
-        description: "Opere della prima donna architetto d'Europa (Cappella di San Luigi) e resti barocchi della facciata della Villa Benedetta (Il Vascello) visibili da Porta San Pancrazio.", 
+        description: "Opere della prima donna architetto d'Europa (Cappella di San Luigi) e resti barocchi della facciata della Villa Benedetta (Il Vascello) visibili da Porta San Pancrazio[cite: 13].", 
         color: "#7D6B4E" 
       },
       { 
@@ -164,7 +164,7 @@
         group: "Gruppo 2", 
         students: "Dan Ditta, Riccardo Centrone, Diego Mappelli", 
         coords: [41.8996, 12.4746], 
-        description: "Comprende la Vocazione, il Martirio e San Matteo e l'angelo. Prestare molta attenzione alla luce naturale proveniente dalle finestre della cappella.", 
+        description: "Comprende Vocazione, Martirio e San Matteo e l'angelo[cite: 13]. Prestare molta attenzione alla luce naturale proveniente dalle finestre della cappella[cite: 13].", 
         color: "#8E3A3A" 
       },
       { 
@@ -177,7 +177,7 @@
         group: "Gruppo 3", 
         students: "Matteo Ventola, Giordano Pasquini", 
         coords: [41.8992, 12.4798], 
-        description: "Capolavori di prospettiva e trompe-l'œil. Capire a cosa serve lo specchio e trovare il punto esatto sul pavimento per ammirare la finta cupola.", 
+        description: "Capolavori di prospettiva e trompe-l'œil[cite: 13]. Capire a cosa serve lo specchio e trovare il punto esatto sul pavimento per ammirare la finta cupola[cite: 13].", 
         color: "#8B5A2B" 
       },
       { 
@@ -190,7 +190,7 @@
         group: "Gruppo 4", 
         students: "Giorgia Di Tondo, Eva Santonati", 
         coords: [41.9034, 12.4903], 
-        description: "Confronto intenso sulla violenza drammatica e sull'uso rivoluzionario della luce caravaggesca.", 
+        description: "Confronto intenso sulla violenza drammatica e sull'uso rivoluzionario della luce caravaggesca[cite: 13].", 
         color: "#7A4360" 
       },
       { 
@@ -203,7 +203,7 @@
         group: "Gruppo 5", 
         students: "Livia Storniolo, Andrea Scalisi", 
         coords: [41.9022, 12.4568], 
-        description: "Il monumentale abbraccio architettonico vaticano e la chiesa di Sant'Andrea al Quirinale, capolavoro a pianta ellittica trasversale.", 
+        description: "Il monumentale abbraccio architettonico vaticano e la chiesa di Sant'Andrea al Quirinale, capolavoro a pianta ellittica trasversale[cite: 13].", 
         color: "#B46A36" 
       },
       { 
@@ -216,7 +216,7 @@
         group: "Gruppo 6", 
         students: "Andrea Magli, Felix Torresin", 
         coords: [41.9021, 12.4539], 
-        description: "Imponenti strutture bronzee e scenografiche all'interno della Basilica. Si consiglia di andare presto per evitare la fila.", 
+        description: "Imponenti strutture bronzee e scenografiche all'interno della Basilica[cite: 13]. Si consiglia di andare presto per evitare la fila[cite: 13].", 
         color: "#B46A36" 
       },
       { 
@@ -229,7 +229,7 @@
         group: "Gruppo 7", 
         students: "Nicola Donati, Giulio Monteleone", 
         coords: [41.9032, 12.4901], 
-        description: "Maestoso affresco della volta. Ricordatevi di esporre anche le famose scale (una del Bernini e una del Borromini) nel palazzo.", 
+        description: "Maestoso affresco della volta[cite: 13]. Ricordatevi di esporre anche le famose scale (una del Bernini e una del Borromini) nel palazzo[cite: 13].", 
         color: "#5C6B48" 
       },
       { 
@@ -242,7 +242,7 @@
         group: "Gruppo 8", 
         students: "Simeon Baas, Stella Reder", 
         coords: [41.9047, 12.4942], 
-        description: "Capolavoro scultoreo; fare molta attenzione a spiegare bene anche le pareti con i palchetti e i rilievi della famiglia Cornaro.", 
+        description: "Capolavoro scultoreo[cite: 13]; fare molta attenzione a spiegare bene anche le pareti con i palchetti e i rilievi della famiglia Cornaro[cite: 13].", 
         color: "#B46A36" 
       },
       { 
@@ -255,7 +255,7 @@
         group: "Gruppo 9", 
         students: "Gloria Maria Corsi, Myriam De Luca", 
         coords: [41.9018, 12.4907], 
-        description: "Chiesa e chiostro dalle linee concave e convesse. Nel chiostro osservate il geniale taglio dell'angolo con le doppie colonne e visitate la cripta.", 
+        description: "Chiesa e chiostro dalle linee concave e convesse[cite: 13]. Nel chiostro osservate il geniale taglio dell'angolo con le doppie colonne e visitate la cripta[cite: 13].", 
         color: "#3B5A69" 
       }
     ];
@@ -273,108 +273,92 @@
     const artListEl = document.getElementById('art-list');
     const cardElements = {};
 
-    // Raggruppamento per Autore
-    const groupedData = artworksData.reduce((acc, curr) => {
-        if (!acc[curr.author]) acc[curr.author] = [];
-        acc[curr.author].push(curr);
-        return acc;
-    }, {});
+    // Generazione della Sidebar seguendo rigorosamente l'ordine dell'array (già ordinato come l'elenco ufficiale)
+    artworksData.forEach(item => {
+        const videoFullUrl = `${baseUrl}${item.slug}.${item.extension}`;
 
-    // Generazione della Sidebar con il nome dell'autore colorato
-    Object.keys(groupedData).forEach(author => {
-        const sampleColor = groupedData[author][0].color;
+        const card = document.createElement('div');
+        card.className = "group py-3 px-2.5 hover:bg-[#F2EFE9] rounded-lg cursor-pointer transition-all duration-300 mb-1.5 border border-transparent hover:border-[#E8E5E1]";
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-0.5">
+            <span class="text-[10px] font-bold uppercase tracking-wider" style="color: ${item.color};">${item.author}</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#666] shrink-0 ml-2">${item.group}</span>
+          </div>
+          <h3 class="font-serif-custom text-[15px] text-[#2C2A29] leading-snug group-hover:text-[#8E3A3A] transition-colors">${item.title}</h3>
+          <p class="text-[11px] text-[#8C8782] mt-0.5 tracking-wide">${item.location}</p>
+        `;
 
-        const authorHeader = document.createElement('div');
-        authorHeader.className = "mt-6 mb-2 border-b border-[#E8E5E1] pb-1";
-        authorHeader.innerHTML = `<h2 class="text-[12px] font-bold uppercase tracking-[0.15em]" style="color: ${sampleColor};">${author}</h2>`;
-        artListEl.appendChild(authorHeader);
-
-        groupedData[author].forEach(item => {
-            const videoFullUrl = `${baseUrl}${item.slug}.${item.extension}`;
-
-            const card = document.createElement('div');
-            card.className = "group py-3 px-2.5 hover:bg-[#F2EFE9] rounded-lg cursor-pointer transition-all duration-300 mb-1.5 border border-transparent hover:border-[#E8E5E1]";
-            card.innerHTML = `
-              <div class="flex justify-between items-center">
-                <h3 class="font-serif-custom text-[16px] text-[#2C2A29] leading-snug group-hover:text-[#8E3A3A] transition-colors">${item.title}</h3>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#666] shrink-0 ml-2">${item.group}</span>
-              </div>
-              <p class="text-[11px] text-[#8C8782] mt-1 tracking-wide">${item.location}</p>
-            `;
-
-            card.addEventListener('click', () => {
-              // Sposta leggermente il punto focale a sinistra per evitare che il popup esca dallo schermo (Fix San Matteo)
-              map.flyTo(item.coords, 16, { duration: 1.2 });
-              setTimeout(() => {
-                map.panBy([-100, 0], { duration: 0.5 });
-              }, 1200);
-              
-              markers[item.id].openPopup();
-            });
-
-            artListEl.appendChild(card);
-            cardElements[item.id] = card;
-
-            // Popup Mappa con Testo Ingrandito per Proiettore e Fullscreen automatico sul video
-            const popupContent = `
-              <div class="p-6">
-                <div class="flex justify-between items-center mb-1">
-                  <p class="text-[11px] font-bold uppercase tracking-[0.2em]" style="color: ${item.color};">${author}</p>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#555]">${item.group}</span>
-                </div>
-                <h3 class="font-serif-custom text-xl text-[#2C2A29] leading-tight mb-1">${item.title}</h3>
-                <p class="text-[12px] text-[#777] mb-3 font-medium">${item.location}</p>
-                
-                <p class="text-[14px] text-[#444] leading-relaxed mb-4 border-l-2 pl-3 py-0.5" style="border-color: ${item.color};">
-                  ${item.description}
-                  <br><span class="text-[11px] italic text-[#666] mt-2 block font-medium">Presentato da: ${item.students}</span>
-                </p>
-
-                <div class="relative aspect-video w-full rounded-md overflow-hidden bg-[#1A1A1A] shadow-inner mb-2">
-                  <video id="vid-${item.id}" class="w-full h-full object-cover" controls playsinline preload="metadata" onplay="requestVideoFullscreen(this)">
-                    <source src="${videoFullUrl}" type="video/mp4">
-                    Il browser non supporta il riproduttore.
-                  </video>
-                </div>
-                <div class="text-right text-[11px]">
-                  <a href="${videoFullUrl}" target="_blank" class="text-[#555] hover:underline font-medium">
-                    Apri video in scheda esterna &rarr;
-                  </a>
-                </div>
-              </div>
-            `;
-
-            const customElegantIcon = L.divIcon({
-              className: 'custom-leaflet-icon',
-              html: `
-                <div class="elegant-pin-container">
-                  <div class="elegant-pin" style="background-color: ${item.color};"></div>
-                  <div class="elegant-pin-dot"></div>
-                </div>
-              `,
-              iconSize: [32, 32],
-              iconAnchor: [16, 32],
-              popupAnchor: [0, -32]
-            });
-
-            const marker = L.marker(item.coords, { icon: customElegantIcon }).addTo(map);
-            marker.bindPopup(popupContent);
-
-            // Evidenzia la card nel menu quando il popup si apre
-            marker.on('popupopen', () => {
-              Object.values(cardElements).forEach(c => c.classList.remove('active-card'));
-              card.classList.add('active-card');
-              // Scorri automaticamente il menu per mostrare la card attiva
-              card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            });
-
-            // Rimuovi l'evidenziazione quando il popup si chiude
-            marker.on('popupclose', () => {
-              card.classList.remove('active-card');
-            });
-
-            markers[item.id] = marker;
+        card.addEventListener('click', () => {
+          // Sposta leggermente il punto focale a sinistra per evitare che il popup esca dallo schermo
+          map.flyTo(item.coords, 16, { duration: 1.2 });
+          setTimeout(() => {
+            map.panBy([-100, 0], { duration: 0.5 });
+          }, 1200);
+          
+          markers[item.id].openPopup();
         });
+
+        artListEl.appendChild(card);
+        cardElements[item.id] = card;
+
+        // Popup Mappa con Testo Ingrandito per Proiettore e Fullscreen automatico sul video
+        const popupContent = `
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-1">
+              <p class="text-[11px] font-bold uppercase tracking-[0.2em]" style="color: ${item.color};">${item.author}</p>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#555]">${item.group}</span>
+            </div>
+            <h3 class="font-serif-custom text-xl text-[#2C2A29] leading-tight mb-1">${item.title}</h3>
+            <p class="text-[12px] text-[#777] mb-3 font-medium">${item.location}</p>
+            
+            <p class="text-[14px] text-[#444] leading-relaxed mb-4 border-l-2 pl-3 py-0.5" style="border-color: ${item.color};">
+              ${item.description}
+              <br><span class="text-[11px] italic text-[#666] mt-2 block font-medium">Presentato da: ${item.students}</span>
+            </p>
+
+            <div class="relative aspect-video w-full rounded-md overflow-hidden bg-[#1A1A1A] shadow-inner mb-2">
+              <video id="vid-${item.id}" class="w-full h-full object-cover" controls playsinline preload="metadata" onplay="requestVideoFullscreen(this)">
+                <source src="${videoFullUrl}" type="video/mp4">
+                Il browser non supporta il riproduttore.
+              </video>
+            </div>
+            <div class="text-right text-[11px]">
+              <a href="${videoFullUrl}" target="_blank" class="text-[#555] hover:underline font-medium">
+                Apri video in scheda esterna &rarr;
+              </a>
+            </div>
+          </div>
+        `;
+
+        const customElegantIcon = L.divIcon({
+          className: 'custom-leaflet-icon',
+          html: `
+            <div class="elegant-pin-container">
+              <div class="elegant-pin" style="background-color: ${item.color};"></div>
+              <div class="elegant-pin-dot"></div>
+            </div>
+          `,
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32]
+        });
+
+        const marker = L.marker(item.coords, { icon: customElegantIcon }).addTo(map);
+        marker.bindPopup(popupContent);
+
+        // Evidenzia la card nel menu quando il popup si apre
+        marker.on('popupopen', () => {
+          Object.values(cardElements).forEach(c => c.classList.remove('active-card'));
+          card.classList.add('active-card');
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        // Rimuovi l'evidenziazione quando il popup si chiude
+        marker.on('popupclose', () => {
+          card.classList.remove('active-card');
+        });
+
+        markers[item.id] = marker;
     });
 
     // Funzione globale per attivare il fullscreen non appena parte il video
