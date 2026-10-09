@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>v7.0 - Mappa Interattiva - Roma Barocca & Rococo</title>
+  <title>v8.0 - Mappa Interattiva - Roma Barocca & Rococo</title>
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -37,25 +37,25 @@
         filter: saturate(45%) contrast(105%) sepia(25%) brightness(101%);
     }
 
-    /* --- STILE POPUP --- */
+    /* --- STILE POPUP (Ingrandito per proiettore) --- */
     .leaflet-popup-content-wrapper {
       background: var(--bg-warm) !important;
       color: var(--text-dark) !important;
       border-radius: 12px !important;
       padding: 0 !important;
-      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.2) !important;
-      border: 1px solid #E8E5E1;
+      box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.25) !important;
+      border: 1.5px solid #D8D4CE;
       overflow: hidden;
     }
-    .leaflet-popup-content { margin: 0 !important; width: 350px !important; }
+    .leaflet-popup-content { margin: 0 !important; width: 380px !important; }
     .leaflet-popup-tip { background: var(--bg-warm) !important; }
 
     /* Pulsante X */
     .leaflet-container a.leaflet-popup-close-button {
-      color: #999 !important;
+      color: #777 !important;
       top: 15px !important;
       right: 15px !important;
-      font-size: 20px !important;
+      font-size: 22px !important;
       transition: color 0.3s !important;
     }
     .leaflet-container a.leaflet-popup-close-button:hover { color: #8E3A3A !important; background: transparent !important; }
@@ -90,6 +90,13 @@
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
     }
 
+    /* Classe per evidenziare la card attiva nel menu */
+    .active-card {
+      background-color: #F0ECE4 !important;
+      border-color: #C2BCB3 !important;
+      box-shadow: inset 3px 0 0 #8E3A3A;
+    }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -110,7 +117,7 @@
           <h1 class="text-3xl font-serif-custom text-[#2C2A29] tracking-tight mb-1">Roma Barocca</h1>
           <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8E3A3A]">Classe 4G • 10/2026</p>
         </div>
-        <span class="text-[10px] font-mono bg-[#E8E5E1] text-[#666] px-2 py-1 rounded">v7.0</span>
+        <span class="text-[10px] font-mono bg-[#E8E5E1] text-[#666] px-2 py-1 rounded">v8.0</span>
       </div>
     </header>
 
@@ -132,10 +139,23 @@
   <script>
     const baseUrl = "https://andreascalisi2009.github.io/mappa-opere-barocco/";
 
-    // Opere mappate con i nomi reali corretti (nomi completi e iniziali per i duplicati)
+    // Opere ordinate secondo il nuovo elenco e i gruppi corretti
     const artworksData = [
       { 
         id: 1, 
+        author: "Plautilla Bricci", 
+        title: "Cappella di San Luigi & Villa Benedetta", 
+        slug: "san-pancrazio", 
+        extension: "mp4", 
+        location: "Chiesa di San Luigi dei Francesi / Via delle Mura Gianicolensi", 
+        group: "Gruppo 1", 
+        students: "Alessandro Pera, Enea Quintiliani", 
+        coords: [41.8858, 12.4593], 
+        description: "Opere della prima donna architetto d'Europa (Cappella di San Luigi) e resti barocchi della facciata della Villa Benedetta (Il Vascello) visibili da Porta San Pancrazio.", 
+        color: "#7D6B4E" 
+      },
+      { 
+        id: 2, 
         author: "Caravaggio", 
         title: "Ciclo di San Matteo", 
         slug: "san-matteo", 
@@ -144,102 +164,11 @@
         group: "Gruppo 2", 
         students: "Dan Ditta, Riccardo Centrone, Diego Mappelli", 
         coords: [41.8996, 12.4746], 
-        description: "Comprende Vocazione, Martirio e San Matteo e l'angelo. Attenzione alla luce delle finestre della cappella.", 
+        description: "Comprende la Vocazione, il Martirio e San Matteo e l'angelo. Prestare molta attenzione alla luce naturale proveniente dalle finestre della cappella.", 
         color: "#8E3A3A" 
       },
       { 
-        id: 2, 
-        author: "Gian Lorenzo Bernini", 
-        title: "Estasi di Santa Teresa", 
-        slug: "estasi-di-santa-teresa", 
-        extension: "mp4", 
-        location: "Chiesa di Santa Maria della Vittoria (Cappella Cornaro)", 
-        group: "Gruppo 8", 
-        students: "Simeon Baas, Stella Reder", 
-        coords: [41.9047, 12.4942], 
-        description: "Capolavoro scultoreo; attenzione a spiegare bene anche i palchetti con i rilievi della famiglia Cornaro.", 
-        color: "#B46A36" 
-      },
-      { 
         id: 3, 
-        author: "Gian Lorenzo Bernini", 
-        title: "Baldacchino e Cattedra di San Pietro", 
-        slug: "baldacchino-di-san-pietro-e-cattedra-di-san-pietro", 
-        extension: "mp4", 
-        location: "Basilica di San Pietro", 
-        group: "Gruppo 6", 
-        students: "Andrea Magli, Felix Torresin", 
-        coords: [41.9021, 12.4539], 
-        description: "Imponenti strutture bronzee e scenografiche all'interno della Basilica Vaticana.", 
-        color: "#B46A36" 
-      },
-      { 
-        id: 4, 
-        author: "Gian Lorenzo Bernini", 
-        title: "Colonnato di San Pietro", 
-        slug: "colonnato-di-san-pietro", 
-        extension: "MP4", 
-        location: "Piazza San Pietro", 
-        group: "Gruppo 5", 
-        students: "Livia Storniolo, Andrea Scalisi", 
-        coords: [41.9022, 12.4568], 
-        description: "Il monumentale abbraccio architettonico progettato per accogliere i fedeli.", 
-        color: "#B46A36" 
-      },
-      { 
-        id: 5, 
-        author: "Francesco Borromini", 
-        title: "San Carlo alle Quattro Fontane (San Carlino)", 
-        slug: "san-carlo-alle-quattro-fontane", 
-        extension: "mp4", 
-        location: "Via del Quirinale 23", 
-        group: "Gruppo 9", 
-        students: "Gloria Maria Corsi, Myriam De Luca", 
-        coords: [41.9018, 12.4907], 
-        description: "Geniale chiesa e chiostro dalle linee concave e convesse e cripta nascosta.", 
-        color: "#3B5A69" 
-      },
-      { 
-        id: 6, 
-        author: "Pietro da Cortona", 
-        title: "Trionfo della Divina Provvidenza", 
-        slug: "trionfo-della-divina-provvidenza", 
-        extension: "mp4", 
-        location: "Palazzo Barberini", 
-        group: "Gruppo 7", 
-        students: "Nicola Donati, Giulio Monteleone", 
-        coords: [41.9032, 12.4901], 
-        description: "Maestoso affresco della volta del Salone Grande e confronto con le scale di Bernini e Borromini.", 
-        color: "#5C6B48" 
-      },
-      { 
-        id: 7, 
-        author: "Artemisia Gentileschi & Caravaggio", 
-        title: "Giuditta che decapita Oloferne", 
-        slug: "giuditta-che-decapita-oloferne", 
-        extension: "mp4", 
-        location: "Palazzo Barberini", 
-        group: "Gruppo 4", 
-        students: "Giorgia Di Tondo, Eva Santonati", 
-        coords: [41.9034, 12.4903], 
-        description: "Confronto sulla violenza drammatica e la luce caravaggesca.", 
-        color: "#7A4360" 
-      },
-      { 
-        id: 8, 
-        author: "Plautilla Bricci", 
-        title: "Cappella di San Luigi & Villa Benedetta (Il Vascello)", 
-        slug: "san-pancrazio", 
-        extension: "mp4", 
-        location: "San Luigi dei Francesi / Via delle Mura Gianicolensi", 
-        group: "Gruppo 1", 
-        students: "Alessandro Pera, Enea Quintiliani", 
-        coords: [41.8858, 12.4593], 
-        description: "Opere della prima donna architetto d'Europa e resti barocchi nei pressi di Porta San Pancrazio.", 
-        color: "#7D6B4E" 
-      },
-      { 
-        id: 9, 
         author: "Padre Andrea Pozzo", 
         title: "Gloria di Sant'Ignazio e Finta Cupola", 
         slug: "gloria-di-sant-ignazio-e-finta-cupola", 
@@ -248,8 +177,86 @@
         group: "Gruppo 3", 
         students: "Matteo Ventola, Giordano Pasquini", 
         coords: [41.8992, 12.4798], 
-        description: "Capolavori di prospettiva e trompe-l'œil; osservare il punto esatto del pavimento.", 
+        description: "Capolavori di prospettiva e trompe-l'œil. Capire a cosa serve lo specchio e trovare il punto esatto sul pavimento per ammirare la finta cupola.", 
         color: "#8B5A2B" 
+      },
+      { 
+        id: 4, 
+        author: "Artemisia Gentileschi & Caravaggio", 
+        title: "Giuditta che decapita Oloferne", 
+        slug: "giuditta-che-decapita-oloferne", 
+        extension: "mp4", 
+        location: "Palazzo Barberini (Gallerie Nazionali)", 
+        group: "Gruppo 4", 
+        students: "Giorgia Di Tondo, Eva Santonati", 
+        coords: [41.9034, 12.4903], 
+        description: "Confronto intenso sulla violenza drammatica e sull'uso rivoluzionario della luce caravaggesca.", 
+        color: "#7A4360" 
+      },
+      { 
+        id: 5, 
+        author: "Gian Lorenzo Bernini", 
+        title: "Colonnato di San Pietro & Sant'Andrea al Quirinale", 
+        slug: "colonnato-di-san-pietro", 
+        extension: "MP4", 
+        location: "Piazza San Pietro / Via del Quirinale 30", 
+        group: "Gruppo 5", 
+        students: "Livia Storniolo, Andrea Scalisi", 
+        coords: [41.9022, 12.4568], 
+        description: "Il monumentale abbraccio architettonico vaticano e la chiesa di Sant'Andrea al Quirinale, capolavoro a pianta ellittica trasversale.", 
+        color: "#B46A36" 
+      },
+      { 
+        id: 6, 
+        author: "Gian Lorenzo Bernini", 
+        title: "Baldacchino e Cattedra di San Pietro", 
+        slug: "baldacchino-di-san-pietro-e-cattedra-di-san-pietro", 
+        extension: "mp4", 
+        location: "Basilica di San Pietro", 
+        group: "Gruppo 6", 
+        students: "Andrea Magli, Felix Torresin", 
+        coords: [41.9021, 12.4539], 
+        description: "Imponenti strutture bronzee e scenografiche all'interno della Basilica. Si consiglia di andare presto per evitare la fila.", 
+        color: "#B46A36" 
+      },
+      { 
+        id: 7, 
+        author: "Pietro da Cortona", 
+        title: "Trionfo della Divina Provvidenza", 
+        slug: "trionfo-della-divina-provvidenza", 
+        extension: "mp4", 
+        location: "Palazzo Barberini (Salone Grande)", 
+        group: "Gruppo 7", 
+        students: "Nicola Donati, Giulio Monteleone", 
+        coords: [41.9032, 12.4901], 
+        description: "Maestoso affresco della volta. Ricordatevi di esporre anche le famose scale (una del Bernini e una del Borromini) nel palazzo.", 
+        color: "#5C6B48" 
+      },
+      { 
+        id: 8, 
+        author: "Gian Lorenzo Bernini", 
+        title: "Estasi di Santa Teresa", 
+        slug: "estasi-di-santa-teresa", 
+        extension: "mp4", 
+        location: "Chiesa di Santa Maria della Vittoria (Cappella Cornaro)", 
+        group: "Gruppo 8", 
+        students: "Simeon Baas, Stella Reder", 
+        coords: [41.9047, 12.4942], 
+        description: "Capolavoro scultoreo; fare molta attenzione a spiegare bene anche le pareti con i palchetti e i rilievi della famiglia Cornaro.", 
+        color: "#B46A36" 
+      },
+      { 
+        id: 9, 
+        author: "Francesco Borromini", 
+        title: "San Carlo alle Quattro Fontane (San Carlino)", 
+        slug: "san-carlo-alle-quattro-fontane", 
+        extension: "mp4", 
+        location: "Via del Quirinale 23", 
+        group: "Gruppo 9", 
+        students: "Gloria Maria Corsi, Myriam De Luca", 
+        coords: [41.9018, 12.4907], 
+        description: "Chiesa e chiostro dalle linee concave e convesse. Nel chiostro osservate il geniale taglio dell'angolo con le doppie colonne e visitate la cripta.", 
+        color: "#3B5A69" 
       }
     ];
 
@@ -264,6 +271,7 @@
 
     const markers = {};
     const artListEl = document.getElementById('art-list');
+    const cardElements = {};
 
     // Raggruppamento per Autore
     const groupedData = artworksData.reduce((acc, curr) => {
@@ -285,31 +293,41 @@
             const videoFullUrl = `${baseUrl}${item.slug}.${item.extension}`;
 
             const card = document.createElement('div');
-            card.className = "group py-2.5 px-2 hover:bg-[#F2EFE9] rounded-lg cursor-pointer transition-all duration-300 mb-1 border border-transparent hover:border-[#E8E5E1]";
+            card.className = "group py-3 px-2.5 hover:bg-[#F2EFE9] rounded-lg cursor-pointer transition-all duration-300 mb-1.5 border border-transparent hover:border-[#E8E5E1]";
             card.innerHTML = `
-              <div>
-                <h3 class="font-serif-custom text-[16px] text-[#2C2A29] leading-tight group-hover:text-[#8E3A3A] transition-colors">${item.title}</h3>
-                <p class="text-[11px] text-[#8C8782] mt-0.5 tracking-wide">${item.location}</p>
+              <div class="flex justify-between items-center">
+                <h3 class="font-serif-custom text-[16px] text-[#2C2A29] leading-snug group-hover:text-[#8E3A3A] transition-colors">${item.title}</h3>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#666] shrink-0 ml-2">${item.group}</span>
               </div>
+              <p class="text-[11px] text-[#8C8782] mt-1 tracking-wide">${item.location}</p>
             `;
 
             card.addEventListener('click', () => {
+              // Sposta leggermente il punto focale a sinistra per evitare che il popup esca dallo schermo (Fix San Matteo)
               map.flyTo(item.coords, 16, { duration: 1.2 });
+              setTimeout(() => {
+                map.panBy([-100, 0], { duration: 0.5 });
+              }, 1200);
+              
               markers[item.id].openPopup();
             });
 
             artListEl.appendChild(card);
+            cardElements[item.id] = card;
 
-            // Popup Mappa con Fullscreen automatico all'avvio del video
+            // Popup Mappa con Testo Ingrandito per Proiettore e Fullscreen automatico sul video
             const popupContent = `
-              <div class="p-5">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style="color: ${item.color};">${author}</p>
-                <h3 class="font-serif-custom text-lg text-[#2C2A29] leading-tight mb-1">${item.title}</h3>
-                <p class="text-[11px] text-[#8C8782] mb-3">${item.location}</p>
+              <div class="p-6">
+                <div class="flex justify-between items-center mb-1">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.2em]" style="color: ${item.color};">${author}</p>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#555]">${item.group}</span>
+                </div>
+                <h3 class="font-serif-custom text-xl text-[#2C2A29] leading-tight mb-1">${item.title}</h3>
+                <p class="text-[12px] text-[#777] mb-3 font-medium">${item.location}</p>
                 
-                <p class="text-[12px] text-[#555] leading-relaxed mb-4 border-l-2 pl-3" style="border-color: ${item.color};">
+                <p class="text-[14px] text-[#444] leading-relaxed mb-4 border-l-2 pl-3 py-0.5" style="border-color: ${item.color};">
                   ${item.description}
-                  <br><span class="text-[10px] italic text-[#8C8782] mt-1.5 block">Presentato da: ${item.students} (${item.group})</span>
+                  <br><span class="text-[11px] italic text-[#666] mt-2 block font-medium">Presentato da: ${item.students}</span>
                 </p>
 
                 <div class="relative aspect-video w-full rounded-md overflow-hidden bg-[#1A1A1A] shadow-inner mb-2">
@@ -318,8 +336,8 @@
                     Il browser non supporta il riproduttore.
                   </video>
                 </div>
-                <div class="text-right text-[10px]">
-                  <a href="${videoFullUrl}" target="_blank" class="text-[#666] hover:underline">
+                <div class="text-right text-[11px]">
+                  <a href="${videoFullUrl}" target="_blank" class="text-[#555] hover:underline font-medium">
                     Apri video in scheda esterna &rarr;
                   </a>
                 </div>
@@ -341,11 +359,25 @@
 
             const marker = L.marker(item.coords, { icon: customElegantIcon }).addTo(map);
             marker.bindPopup(popupContent);
+
+            // Evidenzia la card nel menu quando il popup si apre
+            marker.on('popupopen', () => {
+              Object.values(cardElements).forEach(c => c.classList.remove('active-card'));
+              card.classList.add('active-card');
+              // Scorri automaticamente il menu per mostrare la card attiva
+              card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+
+            // Rimuovi l'evidenziazione quando il popup si chiude
+            marker.on('popupclose', () => {
+              card.classList.remove('active-card');
+            });
+
             markers[item.id] = marker;
         });
     });
 
-    // Funzione globale che attiva automaticamente il fullscreen appena parte il video
+    // Funzione globale per attivare il fullscreen non appena parte il video
     function requestVideoFullscreen(videoElement) {
       if (videoElement.requestFullscreen) {
         videoElement.requestFullscreen();
