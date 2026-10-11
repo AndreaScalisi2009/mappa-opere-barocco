@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>v14.0 - Mappa Interattiva - Roma Barocca & Rococo</title>
+  <title>v15.0 - Mappa Interattiva - Roma Barocca & Rococo</title>
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -131,17 +131,17 @@
           <h1 class="text-3xl font-serif-custom text-[#2C2A29] tracking-tight mb-1">Roma Barocca</h1>
           <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8E3A3A]">Classe 4G • 10/2026</p>
         </div>
-        <span class="text-[10px] font-mono bg-[#E8E5E1] text-[#666] px-2 py-1 rounded">v14.0</span>
+        <span class="text-[10px] font-mono bg-[#E8E5E1] text-[#666] px-2 py-1 rounded">v15.0</span>
       </div>
 
-      <!-- Controllo Ordinamento Lista Riparato -->
+      <!-- Controllo Ordinamento Lista -->
       <div class="mt-4 flex items-center justify-between text-[11px] bg-[#EFECE6] p-1 rounded-lg border border-[#E2DDD5]">
         <span class="text-[#777] font-medium pl-2">Ordina per:</span>
         <div class="flex gap-1">
-          <button id="sort-author-btn" onclick="renderArtList('author')" class="px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all">
+          <button id="sort-author-btn" onclick="setSortMode('author')" class="px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all">
             Autore
           </button>
-          <button id="sort-group-btn" onclick="renderArtList('group')" class="px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all">
+          <button id="sort-group-btn" onclick="setSortMode('group')" class="px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all">
             Gruppo
           </button>
         </div>
@@ -189,7 +189,7 @@
   <script>
     const baseUrl = "https://andreascalisi2009.github.io/mappa-opere-barocco/";
 
-    // Dataset Completo delle opere (Ordine ufficiale iniziale)
+    // Dataset Completo delle opere
     const artworksData = [
       { 
         id: 1, 
@@ -333,8 +333,9 @@
     const markers = {};
     const cardElements = {};
     const artListEl = document.getElementById('art-list');
+    let currentSortMode = 'author';
 
-    // Funzione di movimento fluido senza scatti
+    // Funzione di movimento pulito
     function openWorkPopup(item, markerInstance) {
       const currentZoom = map.getZoom();
       const targetZoom = (currentZoom >= 14 && currentZoom <= 18) ? currentZoom : 16;
@@ -390,11 +391,11 @@
 
       const marker = L.marker(item.coords, { icon: customIcon }).addTo(map);
       
-      // AutoPan con margini generosi
+      // AutoPan generoso con ampi margini
       marker.bindPopup(popupContent, { 
         autoPan: true, 
-        autoPanPaddingTopLeft: [60, 110], 
-        autoPanPaddingBottomRight: [60, 60] 
+        autoPanPaddingTopLeft: [70, 120], 
+        autoPanPaddingBottomRight: [70, 70] 
       });
 
       // Tooltip al passaggio del mouse
@@ -408,11 +409,15 @@
         </div>
       `, { direction: 'top', offset: [0, -32], className: 'custom-preview-tooltip' });
 
-      // FIX BUG PRIMO CLICK: Forza il ricalcolo geometrico e la compensazione in alto immediata
+      marker.on('click', () => {
+        openWorkPopup(item, marker);
+      });
+
       marker.on('popupopen', () => {
+        // Compensazione verticale extra per sicurezza assoluta al primo click
         setTimeout(() => {
-          map.panBy([0, -40], { animate: true, duration: 0.2 });
-        }, 30);
+          map.panBy([0, -60], { animate: true, duration: 0.2 });
+        }, 40);
 
         Object.values(cardElements).forEach(c => c.classList.remove('active-card'));
         if (cardElements[item.id]) {
@@ -430,14 +435,20 @@
       markers[item.id] = marker;
     });
 
-    // Funzione per Renderizzare e Ordinare la Sidebar (Riparata correttamente)
-    function renderArtList(sortBy = 'author') {
+    // Funzione per Gestire l'Ordinamento della Sidebar in modo pulito
+    function setSortMode(mode) {
+      currentSortMode = mode;
+      renderArtList();
+    }
+
+    // Renderizza la Sidebar applicando l'ordinamento attivo
+    function renderArtList() {
       artListEl.innerHTML = '';
 
       const authorBtn = document.getElementById('sort-author-btn');
       const groupBtn = document.getElementById('sort-group-btn');
 
-      if (sortBy === 'author') {
+      if (currentSortMode === 'author') {
         authorBtn.className = "px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all";
         groupBtn.className = "px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all";
       } else {
@@ -445,10 +456,12 @@
         authorBtn.className = "px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all";
       }
 
-      // Copia pulita dell'array da ordinare senza alterare l'indice iniziale
       let sortedData = [...artworksData];
-      if (sortBy === 'group') {
+      if (currentSortMode === 'group') {
         sortedData.sort((a, b) => a.groupNum - b.groupNum);
+      } else {
+        // Ordine originale (elenco ufficiale iniziale)
+        sortedData.sort((a, b) => a.id - b.id);
       }
 
       sortedData.forEach(item => {
@@ -512,9 +525,25 @@
       }
     }
 
+    // TRUCCO DEFINITIVO PER PRE-RENDERIZZARE IL PRIMO POPUP INVISIBILMENTE
+    function preloadFirstPopup() {
+      const firstItem = artworksData[0];
+      const marker = markers[firstItem.id];
+      if (marker) {
+        marker.openPopup();
+        map.closePopup();
+      }
+    }
+
     // Inizializzazione
-    renderArtList('author');
+    renderArtList();
     buildLegend();
+
+    // Esegue il pre-render dopo mezzo secondo dall'avvio
+    setTimeout(() => {
+      preloadFirstPopup();
+      map.invalidateSize();
+    }, 500);
 
     window.addEventListener('resize', () => {
       map.invalidateSize();
