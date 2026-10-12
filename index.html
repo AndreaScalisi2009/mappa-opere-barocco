@@ -47,7 +47,7 @@
       border: 1.5px solid #D8D4CE;
       overflow: hidden;
     }
-    .leaflet-popup-content { margin: 0 !important; width: 320px !important; }
+    .leaflet-popup-content { margin: 0 !important; width: min(320px, calc(100vw - 64px)) !important; }
     @media (min-width: 640px) { .leaflet-popup-content { width: 360px !important; } }
     .leaflet-popup-tip { background: var(--bg-warm) !important; }
 
@@ -138,10 +138,10 @@
       <div class="mt-4 flex items-center justify-between text-[11px] bg-[#EFECE6] p-1 rounded-lg border border-[#E2DDD5]">
         <span class="text-[#777] font-medium pl-2">Ordina per:</span>
         <div class="flex gap-1">
-          <button id="sort-author-btn" onclick="setSortMode('author')" class="px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all">
+          <button id="sort-author-btn" onclick="setSortMode('author')" class="px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all">
             Autore
           </button>
-          <button id="sort-group-btn" onclick="setSortMode('group')" class="px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all">
+          <button id="sort-group-btn" onclick="setSortMode('group')" class="px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all">
             Gruppo
           </button>
         </div>
@@ -331,15 +331,28 @@
     const markers = {};
     const cardElements = {};
     const artListEl = document.getElementById('art-list');
-    let currentSortMode = 'author';
+    let currentSortMode = 'group';
 
-    // Apri popup con centratura dinamica ben bilanciata
+    // Apri il popup senza competere con l'auto-pan di Leaflet.
+    let popupOpenTimer = null;
     function openWorkPopup(item, markerInstance) {
+      if (!markerInstance) return;
+
+      if (popupOpenTimer) {
+        clearTimeout(popupOpenTimer);
+        popupOpenTimer = null;
+      }
+
       const currentZoom = map.getZoom();
       const targetZoom = (currentZoom >= 14 && currentZoom <= 18) ? currentZoom : 16;
-      
-      map.setView(item.coords, targetZoom, { animate: true, duration: 0.4 });
-      markerInstance.openPopup();
+
+      map.stop();
+      map.setView(item.coords, targetZoom, { animate: false });
+
+      popupOpenTimer = setTimeout(() => {
+        markerInstance.openPopup();
+        popupOpenTimer = null;
+      }, 60);
     }
 
     // Inizializza i Marker
@@ -392,8 +405,10 @@
       // AutoPan ottimizzato per evitare tagli superiori
       marker.bindPopup(popupContent, { 
         autoPan: true,
-        autoPanPaddingTopLeft: L.point(50, 100),
-        autoPanPaddingBottomRight: L.point(50, 50)
+        autoPanPaddingTopLeft: L.point(24, 90),
+        autoPanPaddingBottomRight: L.point(24, 24),
+        keepInView: true,
+        closeOnClick: false
       });
 
       // Tooltip al passaggio del mouse
@@ -412,11 +427,7 @@
       });
 
       marker.on('popupopen', () => {
-        // Compensazione spazio superiore
-        setTimeout(() => {
-          map.panBy([0, -80], { animate: true, duration: 0.25 });
-        }, 30);
-
+        // Leaflet gestisce da solo il posizionamento automatico del popup.
         Object.values(cardElements).forEach(c => c.classList.remove('active-card'));
         if (cardElements[item.id]) {
           cardElements[item.id].classList.add('active-card');
@@ -442,585 +453,7 @@
     // Renderizza la Sidebar suddivisa per sezioni se in modalità "Autore"
     function renderArtList() {
       artListEl.innerHTML = '';
-
-      const authorBtn = document.getElementById('sort-author-btn');
-      const groupBtn = document.getElementById('sort-group-btn');
-
-      if (currentSortMode === 'author') {
-        authorBtn.className = "px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all";
-        groupBtn.className = "px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all";
-
-        // Raggruppa per autore
-        const groupsByAuthor = {};
-        artworksData.forEach(item => {
-          if (!groupsByAuthor[item.author]) {
-            groupsByAuthor[item.author] = [];
-          }
-          groupsByAuthor[item.author].push(item);
-        });
-
-        // Ordina alfabeticamente gli autori
-        const sortedAuthors = Object.keys(groupsByAuthor).sort((a, b) => a.localeCompare(b));
-
-        sortedAuthors.forEach(author => {
-          const items = groupsByAuthor[author];
-          const authorColor = items[0].color;
-
-          // Intestazione Sezione Autore
-          const sectionHeader = document.createElement('div');
-          sectionHeader.className = "sticky top-0 bg-[#FAF9F6]/95 backdrop-blur-sm py-2 mt-3 mb-1.5 border-b border-[#E2DDD5] z-10 flex items-center gap-2";
-          sectionHeader.innerHTML = `
-            <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${authorColor};"></div>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-[#2C2A29]">${author}</h2>
-          `;
-          artListEl.appendChild(sectionHeader);
-
-          items.forEach(item => {
-            const card = document.createElement('div');
-            card.className = "group py-2.5 px-3 hover:bg-[#F2EFE9] rounded-lg cursor-pointer transition-all duration-300 mb-1.5 border border-transparent hover:border-[#E8E5E1]";
-            card.innerHTML = `
-              <div class="flex justify-between items-center mb-0.5">
-                <h3 class="font-serif-custom text-[15px] font-medium text-[#2C2A29] leading-snug group-hover:text-[#8E3A3A] transition-colors">${item.title}</h3>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#666] shrink-0 ml-2">${item.group}</span>
-              </div>
-              <p class="text-[11px] text-[#8C8782] tracking-wide">${item.location}</p>
-            `;
-
-            card.addEventListener('click', () => {
-              openWorkPopup(item, markers[item.id]);
-            });
-
-            artListEl.appendChild(card);
-            cardElements[item.id] = card;
-          });
-        });
-
-      } else {
-        // Ordinamento per Gruppo (lista singola)
-        groupBtn.className = "px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all";
-        authorBtn.className = "px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all";
-
-        let sortedData = [...artworksData].sort((a, b) => a.groupNum - b.groupNum);
-
-        sortedData.forEach(item => {
-          const card = document.createElement('div');
-          card.className = "group py-3 px-2.5 hover:bg-[#F2EFE9] rounded-lg cursor-pointer transition-all duration-300 mb-1.5 border border-transparent hover:border-[#E8E5E1]";
-          card.innerHTML = `
-            <div class="flex justify-between items-center mb-0.5">
-              <span class="text-[10px] font-bold uppercase tracking-wider" style="color: ${item.color};">${item.author}</span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#666] shrink-0 ml-2">${item.group}</span>
-            </div>
-            <h3 class="font-serif-custom text-[15px] text-[#2C2A29] leading-snug group-hover:text-[#8E3A3A] transition-colors">${item.title}</h3>
-            <p class="text-[11px] text-[#8C8782] mt-0.5 tracking-wide">${item.location}</p>
-          `;
-
-          card.addEventListener('click', () => {
-            openWorkPopup(item, markers[item.id]);
-          });
-
-          artListEl.appendChild(card);
-          cardElements[item.id] = card;
-        });
-      }
-    }
-
-    // Popola la Legenda
-    function buildLegend() {
-      const legendContent = document.getElementById('legend-content');
-      const uniqueAuthors = {};
-
-      artworksData.forEach(item => {
-        if (!uniqueAuthors[item.author]) {
-          uniqueAuthors[item.author] = item.color;
-        }
-      });
-
-      Object.keys(uniqueAuthors).sort((a, b) => a.localeCompare(b)).forEach(author => {
-        const color = uniqueAuthors[author];
-        const row = document.createElement('div');
-        row.className = "flex items-center gap-2";
-        row.innerHTML = `
-          <div class="w-3 h-3 rounded-full shrink-0" style="background-color: ${color};"></div>
-          <span class="text-[#444] font-medium truncate">${author}</span>
-        `;
-        legendContent.appendChild(row);
-      });
-    }
-
-    // Tasti Toggle Legenda
-    function toggleLegend() {
-      const box = document.getElementById('legend-box');
-      box.classList.toggle('hidden');
-    }
-
-    // Activation Fullscreen Video
-    function requestVideoFullscreen(videoElement) {
-      if (videoElement.requestFullscreen) {
-        videoElement.requestFullscreen();
-      } else if (videoElement.webkitRequestFullscreen) {
-        videoElement.webkitRequestFullscreen();
-      } else if (videoElement.msRequestFullscreen) {
-        videoElement.msRequestFullscreen();
-      }
-    }
-
-    // Inizializzazione
-    renderArtList();
-    buildLegend();
-
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 300);
-
-    window.addEventListener('resize', () => {
-      map.invalidateSize();
-    });
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>v15.0 - Mappa Interattiva - Roma Barocca & Rococo</title>
-  
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Lora e Outfit -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  
-  <style>
-    :root {
-      --bg-warm: #FAF9F6;
-      --text-dark: #2C2A29;
-    }
-
-    body { 
-      font-family: 'Outfit', sans-serif; 
-      background-color: var(--bg-warm); 
-      color: var(--text-dark);
-    }
-    
-    .font-serif-custom { font-family: 'Lora', serif; }
-
-    #map { height: 100%; width: 100%; z-index: 1; }
-    
-    /* Filtro Mappa Caldo ed Elegante */
-    .leaflet-tile-pane {
-        filter: saturate(45%) contrast(105%) sepia(25%) brightness(101%);
-    }
-
-    /* --- STILE POPUP --- */
-    .leaflet-popup-content-wrapper {
-      background: var(--bg-warm) !important;
-      color: var(--text-dark) !important;
-      border-radius: 12px !important;
-      padding: 0 !important;
-      box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.25) !important;
-      border: 1.5px solid #D8D4CE;
-      overflow: hidden;
-    }
-    .leaflet-popup-content { margin: 0 !important; width: 320px !important; }
-    @media (min-width: 640px) { .leaflet-popup-content { width: 360px !important; } }
-    .leaflet-popup-tip { background: var(--bg-warm) !important; }
-
-    /* Pulsante X Chiusura */
-    .leaflet-container a.leaflet-popup-close-button {
-      color: #777 !important;
-      top: 15px !important;
-      right: 15px !important;
-      font-size: 22px !important;
-      transition: color 0.3s !important;
-      z-index: 30;
-    }
-    .leaflet-container a.leaflet-popup-close-button:hover { color: #8E3A3A !important; background: transparent !important; }
-
-    /* --- PIN A GOCCIA --- */
-    .elegant-pin-container {
-      width: 32px;
-      height: 32px;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .elegant-pin-container:hover { transform: scale(1.15) translateY(-5px); z-index: 1000 !important; }
-    
-    .elegant-pin {
-      width: 100%;
-      height: 100%;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 1.5px solid #ffffff;
-      box-shadow: -3px 3px 6px rgba(0,0,0,0.25);
-    }
-    .elegant-pin-dot {
-      width: 10px;
-      height: 10px;
-      background: #ffffff;
-      border-radius: 50%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-    }
-
-    /* Tooltip Anteprima personalizzato Leaflet */
-    .leaflet-tooltip.custom-preview-tooltip {
-      background: #2C2A29 !important;
-      color: #FAF9F6 !important;
-      border: none !important;
-      border-radius: 8px !important;
-      padding: 6px 10px !important;
-      font-family: 'Outfit', sans-serif !important;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
-    }
-    .leaflet-tooltip.custom-preview-tooltip::before { border-top-color: #2C2A29 !important; }
-
-    /* Card Attiva nel Menu */
-    .active-card {
-      background-color: #F0ECE4 !important;
-      border-color: #C2BCB3 !important;
-      box-shadow: inset 3px 0 0 #8E3A3A;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #E0DCD6; }
-    ::-webkit-scrollbar-thumb:hover { background: #C2BCB3; }
-  </style>
-</head>
-<body class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
-
-  <!-- Sidebar -->
-  <aside class="w-full md:w-[420px] shrink-0 border-r border-[#E8E5E1] flex flex-col h-2/5 md:h-full z-10 shadow-2xl relative" style="background-color: var(--bg-warm);">
-    
-    <!-- Header -->
-    <header class="pt-7 pb-4 px-8 relative border-b border-[#E8E5E1]">
-      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#8E3A3A] to-[#D4A373]"></div>
-      <div class="flex justify-between items-start">
-        <div>
-          <h1 class="text-3xl font-serif-custom text-[#2C2A29] tracking-tight mb-1">Roma Barocca</h1>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8E3A3A]">Classe 4G • 10/2026</p>
-        </div>
-        <span class="text-[10px] font-mono bg-[#E8E5E1] text-[#666] px-2 py-1 rounded">v15.0</span>
-      </div>
-
-      <!-- Controllo Ordinamento Lista -->
-      <div class="mt-4 flex items-center justify-between text-[11px] bg-[#EFECE6] p-1 rounded-lg border border-[#E2DDD5]">
-        <span class="text-[#777] font-medium pl-2">Ordina per:</span>
-        <div class="flex gap-1">
-          <button id="sort-author-btn" onclick="setSortMode('author')" class="px-2.5 py-1 rounded-md bg-white font-semibold text-[#2C2A29] shadow-sm transition-all">
-            Autore
-          </button>
-          <button id="sort-group-btn" onclick="setSortMode('group')" class="px-2.5 py-1 rounded-md text-[#777] hover:text-[#2C2A29] font-medium transition-all">
-            Gruppo
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Lista Opere -->
-    <div id="art-list" class="flex-1 overflow-y-auto px-6 py-3">
-      <!-- Generato dinamicamente -->
-    </div>
-
-    <!-- Crediti Discreti -->
-    <footer class="py-2.5 px-6 border-t border-[#E8E5E1] text-center text-[10px] text-[#999] tracking-wider bg-[#F5F3EF]">
-      Progettato e sviluppato da <strong class="text-[#666] font-semibold">Andrea Scalisi</strong> • Classe 4G
-    </footer>
-
-  </aside>
-
-  <!-- Mappa -->
-  <main class="flex-1 w-full relative h-3/5 md:h-full bg-[#E8E5E1] overflow-hidden">
-    <div id="map"></div>
-
-    <!-- Bottone & Legenda Colori Autori (In Basso a Destra) -->
-    <div class="absolute bottom-6 right-6 z-[1000] flex flex-col items-end gap-2">
-      <div id="legend-box" class="hidden bg-[#FAF9F6] p-4 rounded-xl border border-[#D8D4CE] shadow-2xl text-xs w-64 space-y-2 mb-1 transition-all">
-        <div class="flex justify-between items-center pb-1.5 border-b border-[#E8E5E1]">
-          <span class="font-bold uppercase tracking-wider text-[10px] text-[#8E3A3A]">Legenda Autori</span>
-          <button onclick="toggleLegend()" class="text-[#999] hover:text-[#2C2A29]"><i class="fa-solid fa-xmark text-sm"></i></button>
-        </div>
-        <div id="legend-content" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-[11px]">
-          <!-- Generato dinamicamente -->
-        </div>
-      </div>
-      
-      <button onclick="toggleLegend()" class="bg-[#FAF9F6] text-[#2C2A29] border border-[#D8D4CE] hover:border-[#8E3A3A] px-3.5 py-2 rounded-xl shadow-lg font-medium text-xs flex items-center gap-2 transition-all">
-        <i class="fa-solid fa-palette text-[#8E3A3A]"></i>
-        <span>Legenda Autori</span>
-      </button>
-    </div>
-  </main>
-
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <script>
-    const baseUrl = "https://andreascalisi2009.github.io/mappa-opere-barocco/";
-
-    // Dataset Completo delle opere
-    const artworksData = [
-      { 
-        id: 1, 
-        groupNum: 1,
-        author: "Plautilla Bricci", 
-        title: "Cappella di San Luigi & Villa Benedetta", 
-        slug: "san-pancrazio", 
-        extension: "mp4", 
-        location: "Chiesa di San Luigi dei Francesi / Via delle Mura Gianicolensi", 
-        group: "Gruppo 1", 
-        students: "Alessandro Pera, Enea Quintiliani", 
-        coords: [41.8858, 12.4593], 
-        description: "Opere della prima donna architetto d'Europa (Cappella di San Luigi) e resti barocchi della facciata della Villa Benedetta (Il Vascello) visibili da Porta San Pancrazio.", 
-        color: "#7D6B4E" 
-      },
-      { 
-        id: 2, 
-        groupNum: 2,
-        author: "Caravaggio", 
-        title: "Ciclo di San Matteo", 
-        slug: "san-matteo", 
-        extension: "mp4", 
-        location: "Chiesa di San Luigi dei Francesi (Cappella Contarelli)", 
-        group: "Gruppo 2", 
-        students: "Dan Ditta, Riccardo Centrone, Diego Mappelli", 
-        coords: [41.8996, 12.4746], 
-        description: "Comprende Vocazione, Martirio e San Matteo e l'angelo. Prestare molta attenzione alla luce naturale proveniente dalle finestre della cappella.", 
-        color: "#8E3A3A" 
-      },
-      { 
-        id: 3, 
-        groupNum: 3,
-        author: "Padre Andrea Pozzo", 
-        title: "Gloria di Sant'Ignazio e Finta Cupola", 
-        slug: "gloria-di-sant-ignazio-e-finta-cupola", 
-        extension: "mp4", 
-        location: "Chiesa di Sant'Ignazio di Loyola", 
-        group: "Gruppo 3", 
-        students: "Matteo Ventola, Giordano Pasquini", 
-        coords: [41.8992, 12.4798], 
-        description: "Capolavori di prospettiva e trompe-l'œil. Capire a cosa serve lo specchio e trovare il punto esatto sul pavimento per ammirare la finta cupola.", 
-        color: "#8B5A2B" 
-      },
-      { 
-        id: 4, 
-        groupNum: 4,
-        author: "Artemisia Gentileschi & Caravaggio", 
-        title: "Giuditta che decapita Oloferne", 
-        slug: "giuditta-che-decapita-oloferne", 
-        extension: "mp4", 
-        location: "Palazzo Barberini (Gallerie Nazionali)", 
-        group: "Gruppo 4", 
-        students: "Giorgia Di Tondo, Eva Santonati", 
-        coords: [41.9034, 12.4903], 
-        description: "Confronto intenso sulla violenza drammatica e sull'uso rivoluzionario della luce caravaggesca.", 
-        color: "#7A4360" 
-      },
-      { 
-        id: 5, 
-        groupNum: 5,
-        author: "Gian Lorenzo Bernini", 
-        title: "Colonnato di San Pietro & Sant'Andrea al Quirinale", 
-        slug: "colonnato-di-san-pietro", 
-        extension: "MP4", 
-        location: "Piazza San Pietro / Via del Quirinale 30", 
-        group: "Gruppo 5", 
-        students: "Livia Storniolo, Andrea Scalisi", 
-        coords: [41.9022, 12.4568], 
-        description: "Il monumentale abbraccio architettonico vaticano e la chiesa di Sant'Andrea al Quirinale, capolavoro a pianta ellittica trasversale.", 
-        color: "#B46A36" 
-      },
-      { 
-        id: 6, 
-        groupNum: 6,
-        author: "Gian Lorenzo Bernini", 
-        title: "Baldacchino e Cattedra di San Pietro", 
-        slug: "baldacchino-di-san-pietro-e-cattedra-di-san-pietro", 
-        extension: "mp4", 
-        location: "Basilica di San Pietro", 
-        group: "Gruppo 6", 
-        students: "Andrea Magli, Felix Torresin", 
-        coords: [41.9021, 12.4539], 
-        description: "Imponenti strutture bronzee e scenografiche all'interno della Basilica. Si consiglia di andare presto per evitare la fila.", 
-        color: "#B46A36" 
-      },
-      { 
-        id: 7, 
-        groupNum: 7,
-        author: "Pietro da Cortona", 
-        title: "Trionfo della Divina Provvidenza", 
-        slug: "trionfo-della-divina-provvidenza", 
-        extension: "mp4", 
-        location: "Palazzo Barberini (Salone Grande)", 
-        group: "Gruppo 7", 
-        students: "Nicola Donati, Giulio Monteleone", 
-        coords: [41.9032, 12.4901], 
-        description: "Maestoso affresco della volta. Ricordatevi di esporre anche le famose scale (una del Bernini e una del Borromini) nel palazzo.", 
-        color: "#5C6B48" 
-      },
-      { 
-        id: 8, 
-        groupNum: 8,
-        author: "Gian Lorenzo Bernini", 
-        title: "Estasi di Santa Teresa", 
-        slug: "estasi-di-santa-teresa", 
-        extension: "mp4", 
-        location: "Chiesa di Santa Maria della Vittoria (Cappella Cornaro)", 
-        group: "Gruppo 8", 
-        students: "Simeon Baas, Stella Reder", 
-        coords: [41.9047, 12.4942], 
-        description: "Capolavoro scultoreo; fare molta attenzione a spiegare bene anche le pareti con i palchetti e i rilievi della famiglia Cornaro.", 
-        color: "#B46A36" 
-      },
-      { 
-        id: 9, 
-        groupNum: 9,
-        author: "Francesco Borromini", 
-        title: "San Carlo alle Quattro Fontane (San Carlino)", 
-        slug: "san-carlo-alle-quattro-fontane", 
-        extension: "mp4", 
-        location: "Via del Quirinale 23", 
-        group: "Gruppo 9", 
-        students: "Gloria Maria Corsi, Myriam De Luca", 
-        coords: [41.9018, 12.4907], 
-        description: "Chiesa e chiostro dalle linee concave e convesse. Nel chiostro osservate il geniale taglio dell'angolo con le doppie colonne e visitate la cripta.", 
-        color: "#3B5A69" 
-      }
-    ];
-
-    // Inizializzazione Mappa
-    const map = L.map('map', { zoomControl: false }).setView([41.901, 12.478], 14);
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    const markers = {};
-    const cardElements = {};
-    const artListEl = document.getElementById('art-list');
-    let currentSortMode = 'author';
-
-    // Apri popup con centratura dinamica ben bilanciata
-    function openWorkPopup(item, markerInstance) {
-      const currentZoom = map.getZoom();
-      const targetZoom = (currentZoom >= 14 && currentZoom <= 18) ? currentZoom : 16;
-      
-      map.setView(item.coords, targetZoom, { animate: true, duration: 0.4 });
-      markerInstance.openPopup();
-    }
-
-    // Inizializza i Marker
-    artworksData.forEach(item => {
-      const videoFullUrl = `${baseUrl}${item.slug}.${item.extension}`;
-
-      const popupContent = `
-        <div class="p-5">
-          <div class="flex justify-between items-center mb-1">
-            <p class="text-[11px] font-bold uppercase tracking-[0.2em]" style="color: ${item.color};">${item.author}</p>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EFECE6] text-[#555]">${item.group}</span>
-          </div>
-          <h3 class="font-serif-custom text-lg font-bold text-[#2C2A29] leading-tight mb-1">${item.title}</h3>
-          <p class="text-[11px] text-[#777] mb-2.5 font-medium">${item.location}</p>
-          
-          <p class="text-[12px] text-[#444] leading-relaxed mb-3 border-l-2 pl-2.5 py-0.5" style="border-color: ${item.color};">
-            ${item.description}
-            <br><span class="text-[10px] italic text-[#666] mt-1.5 block font-medium">Presentato da: ${item.students}</span>
-          </p>
-
-          <div class="relative aspect-video w-full rounded-md overflow-hidden bg-[#1A1A1A] shadow-inner mb-2">
-            <video id="vid-${item.id}" class="w-full h-full object-cover" controls playsinline preload="metadata" onplay="requestVideoFullscreen(this)">
-              <source src="${videoFullUrl}" type="video/mp4">
-              Il browser non supporta il riproduttore.
-            </video>
-          </div>
-          <div class="text-right text-[10px]">
-            <a href="${videoFullUrl}" target="_blank" class="text-[#555] hover:underline font-medium">
-              Apri video in scheda esterna &rarr;
-            </a>
-          </div>
-        </div>
-      `;
-
-      const customIcon = L.divIcon({
-        className: 'custom-leaflet-icon',
-        html: `
-          <div class="elegant-pin-container">
-            <div class="elegant-pin" style="background-color: ${item.color};"></div>
-            <div class="elegant-pin-dot"></div>
-          </div>
-        `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -28]
-      });
-
-      const marker = L.marker(item.coords, { icon: customIcon }).addTo(map);
-      
-      // AutoPan ottimizzato per evitare tagli superiori
-      marker.bindPopup(popupContent, { 
-        autoPan: true,
-        autoPanPaddingTopLeft: L.point(50, 100),
-        autoPanPaddingBottomRight: L.point(50, 50)
-      });
-
-      // Tooltip al passaggio del mouse
-      marker.bindTooltip(`
-        <div class="flex items-center gap-2">
-          <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${item.color};"></div>
-          <div>
-            <p class="text-[10px] font-bold text-[#D4A373] uppercase">${item.author}</p>
-            <p class="text-xs font-semibold">${item.title}</p>
-          </div>
-        </div>
-      `, { direction: 'top', offset: [0, -30], className: 'custom-preview-tooltip' });
-
-      marker.on('click', () => {
-        openWorkPopup(item, marker);
-      });
-
-      marker.on('popupopen', () => {
-        // Compensazione spazio superiore
-        setTimeout(() => {
-          map.panBy([0, -80], { animate: true, duration: 0.25 });
-        }, 30);
-
-        Object.values(cardElements).forEach(c => c.classList.remove('active-card'));
-        if (cardElements[item.id]) {
-          cardElements[item.id].classList.add('active-card');
-          cardElements[item.id].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      });
-
-      marker.on('popupclose', () => {
-        if (cardElements[item.id]) {
-          cardElements[item.id].classList.remove('active-card');
-        }
-      });
-
-      markers[item.id] = marker;
-    });
-
-    // Cambia modalità d'ordinamento
-    function setSortMode(mode) {
-      currentSortMode = mode;
-      renderArtList();
-    }
-
-    // Renderizza la Sidebar suddivisa per sezioni se in modalità "Autore"
-    function renderArtList() {
-      artListEl.innerHTML = '';
+      Object.keys(cardElements).forEach(id => delete cardElements[id]);
 
       const authorBtn = document.getElementById('sort-author-btn');
       const groupBtn = document.getElementById('sort-group-btn');
